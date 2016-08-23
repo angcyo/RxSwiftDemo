@@ -7,8 +7,12 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 
 class ViewController: UIViewController {
+
+	let n = Variable(1)
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -20,5 +24,16 @@ class ViewController: UIViewController {
 		// Dispose of any resources that can be recreated.
 	}
 
+	@IBAction func onButton(sender: AnyObject) {
+		test()
+	}
+}
+
+extension ViewController {
+	func test() {
+		n.asObservable().map { int in
+			print("Test \(NSThread.isMainThread()) \(#function) \(int)")
+		}.subscribe()
+	}
 }
 
