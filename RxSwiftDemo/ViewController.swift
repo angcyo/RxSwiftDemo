@@ -18,11 +18,14 @@ class ViewController: UIViewController {
 
 	var textFieldDisp: Disposable!
 
+	let disposeBag = DisposeBag()
+
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		// Do any additional setup after loading the view, typically from a nib.
 
-		testTextField()
+		// testTextField()
+		testBackground()
 	}
 
 	override func didReceiveMemoryWarning() {
@@ -62,13 +65,34 @@ extension ViewController {
 
 		// 2:
 		textFieldDisp = textFieldOutlet.rx_text.subscribeNext { element in
-			print("event \(#function) \(element)")
+			print("\(NSThread.isMainThread()) \(#function) \(element)")
 		}
 
 //		textFieldOutlet.rx_selected.on { event in
 //			print("Test \(NSThread.isMainThread()) \(#function) \(event.)")
 //		}
 
+	}
+
+	func testBackground() {
+		// ConcurrentDispatchQueueScheduler
+//        ConcurrentDispatchQueueScheduler.init(queue: dispatch_queue_t)
+
+//        OperationQueueScheduler
+
+		textFieldOutlet.rx_text
+			.observeOn(OperationQueueScheduler.init(operationQueue: NSOperationQueue()))
+			.map { str in
+				print("map1 \(NSThread.isMainThread()) \(#function) \(str)")
+				// return "map1"
+		}.observeOn(MainScheduler.instance)
+			.map { str in
+				print("map2 \(NSThread.isMainThread()) \(#function) \(str)")
+		}.observeOn(OperationQueueScheduler.init(operationQueue: NSOperationQueue()))
+			.subscribeNext { str in
+				print("onnext \(NSThread.isMainThread()) \(#function) \(str)")
+		}
+			.addDisposableTo(disposeBag)
 	}
 }
 
