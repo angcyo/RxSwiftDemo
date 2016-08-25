@@ -50,10 +50,13 @@ class ViewController: UIViewController {
 }
 
 extension ViewController {
+
 	func testFunc() {
-		n.asObservable().map { int in
-			print("Test \(NSThread.isMainThread()) \(#function) \(int)")
-		}.subscribe().dispose()
+		n.asObservable()
+			.observeOn(OperationQueueScheduler(operationQueue: NSOperationQueue()))
+			.map { int in
+				print("Test \(NSThread.isMainThread()) \(#function) \(int)")
+		}.subscribe().addDisposableTo(DisposeBag())
 	}
 
 	func testTextField() {
